@@ -1,135 +1,417 @@
 import { ethers } from "./libs/ethers.min.js";
 
 const connectBtn = document.getElementById("connectBtn");
+const transferBtn = document.getElementById("transferBtn");
+
 const accountSpan = document.getElementById("account");
-const unlockTimeSpan = document.getElementById("unlockTime");
-const balanceSpan = document.getElementById("balance");
+const tokenBalanceSpan = document.getElementById("tokenBalance");
+const statusLabel = document.getElementById("status");
 
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-const CONTRACT_ABI = [
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_unlockTime",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "payable",
-        "type": "constructor"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "when",
-                "type": "uint256"
-            }
-        ],
-        "name": "Withdrawal",
-        "type": "event"
-    },
-    {
-        "inputs": [],
-        "name": "owner",
-        "outputs": [
-            {
-                "internalType": "address payable",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "unlockTime",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "withdraw",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
-];
+const toAddressInput = document.getElementById("toAddress");
+const amountInput = document.getElementById("amount");
 
+const TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const TOKEN_ABI = [{
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "initialSupply",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "allowance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "needed",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC20InsufficientAllowance",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "needed",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC20InsufficientBalance",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "approver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC20InvalidApprover",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC20InvalidReceiver",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "ERC20InvalidSender",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "ERC20InvalidSpender",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "allowance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }];
 let provider;
 let signer;
-let contract;
+let token;
+let userAddress;
+let decimals;
 
-async function updateContractData() {
+connectBtn.onclick = async () => {
     try {
-        await provider.getNetwork();
-
-        const code = await provider.getCode(CONTRACT_ADDRESS);
-        console.log("Contract bytecode length:", code.length);
-
-        if (code === "0x" || code === "0x0") {
-            console.error(
-                "Contract is not deployed on the current network. " +
-                "Try resetting the MetaMask account or switching networks."
-            );
+        if (!window.ethereum) {
+            alert("MetaMask not found");
             return;
         }
 
-        const unlockTime = await contract.unlockTime();
-        unlockTimeSpan.innerText = new Date(
-            Number(unlockTime) * 1000
-        ).toLocaleString();
-
-        const balance = await provider.getBalance(CONTRACT_ADDRESS);
-        balanceSpan.innerText = ethers.formatEther(balance);
-
-    } catch (error) {
-        console.error("Failed to read contract data:", error);
-    }
-}
-
-connectBtn.onclick = async () => {
-    if (!window.ethereum) {
-        alert("MetaMask was not detected. Please install the MetaMask extension.");
-        return;
-    }
-
-    try {
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-
         provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+
         signer = await provider.getSigner();
+        userAddress = await signer.getAddress();
 
-        const account = await signer.getAddress();
-        accountSpan.innerText = account;
+        accountSpan.innerText = userAddress;
 
-        // Create contract 
-        contract = new ethers.Contract(
-            CONTRACT_ADDRESS,
-            CONTRACT_ABI,
+        token = new ethers.Contract(
+            TOKEN_ADDRESS,
+            TOKEN_ABI,
             signer
         );
 
-        await updateContractData();
+        decimals = await token.decimals();
+
+        await updateBalance();
+        listenToTransfers();
 
     } catch (error) {
-        console.error("Wallet connection failed:", error);
-        alert("Connection error: " + error.message);
+        console.error(error);
+        statusLabel.innerText = "Wallet connection failed";
     }
 };
+
+async function updateBalance() {
+    const balance = await token.balanceOf(userAddress);
+    tokenBalanceSpan.innerText =
+        ethers.formatUnits(balance, decimals);
+}
+
+transferBtn.onclick = async () => {
+    try {
+        const to = toAddressInput.value;
+        const amount = amountInput.value;
+
+        if (!ethers.isAddress(to)) {
+            statusLabel.innerText = "Invalid address";
+            return;
+        }
+
+        const parsedAmount =
+            ethers.parseUnits(amount, decimals);
+
+        statusLabel.innerText = "Transaction pending...";
+
+        const tx = await token.transfer(to, parsedAmount);
+        await tx.wait();
+
+        statusLabel.innerText = "Transfer successful";
+        await updateBalance();
+
+    } catch (error) {
+        if (error.code === 4001) {
+            statusLabel.innerText = "Transaction rejected ";
+        } else {
+            statusLabel.innerText = "Transfer failed";
+            console.error(error);
+        }
+    }
+};
+
+function listenToTransfers() {
+    token.on("Transfer", (from, to, value) => {
+        if (
+            from.toLowerCase() === userAddress.toLowerCase() ||
+            to.toLowerCase() === userAddress.toLowerCase()
+        ) {
+            updateBalance();
+        }
+    });
+}

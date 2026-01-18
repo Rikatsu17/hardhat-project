@@ -2,115 +2,91 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Lock Contract dApp</title>
+    <title>ERC20 Token dApp</title>
 
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
+        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
         body {
             min-height: 100vh;
-            background: rgb(80, 27, 146);
+            background: linear-gradient(135deg, #4b0082, #2b1055);
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #ffffff;
+            color: #fff;
         }
-
         .card {
             background: #1a1a2e;
-            padding: 30px 40px;
+            padding: 30px;
             border-radius: 16px;
-            width: 360px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            width: 380px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
-
-        h1 {
+        h1, h3 {
             text-align: center;
-            margin-bottom: 25px;
-            font-size: 22px;
+            margin-bottom: 15px;
         }
-
         button {
             width: 100%;
             padding: 12px;
-            margin-bottom: 20px;
-            font-size: 16px;
+            margin-top: 10px;
+            font-size: 15px;
             font-weight: bold;
             color: #fff;
-            background: linear-gradient(135deg, #6a5acd, #836fff);
+            background: linear-gradient(135deg,#6a5acd,#836fff);
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            transition: transform 0.2s ease, opacity 0.2s ease;
         }
-
-        button:hover {
-            transform: translateY(-2px);
-            opacity: 0.9;
-        }
-
         .info {
             background: #22223b;
-            padding: 12px 15px;
+            padding: 10px;
             border-radius: 10px;
-            margin-bottom: 12px;
+            margin-top: 10px;
+            font-size: 14px;
             display: flex;
             justify-content: space-between;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: none;
+        }
+        #status {
+            margin-top: 10px;
+            text-align: center;
             font-size: 14px;
-        }
-
-        .label {
-            opacity: 0.7;
-        }
-
-        .value {
-            font-weight: bold;
-            word-break: break-all;
-            text-align: right;
-            max-width: 180px;
         }
     </style>
 </head>
-
 <body>
 
-    <div class="card">
-        <h1> Lock Contract dApp</h1>
+<div class="card">
+    <h1>ERC-20 Token dApp</h1>
 
-        <button id="connectBtn">Connect MetaMask</button>
+    <button id="connectBtn">Connect MetaMask</button>
 
-        <div class="info">
-            <span class="label">Account</span>
-            <span class="value" id="account">Not connected</span>
-        </div>
-
-        <div class="info">
-            <span class="label">Unlock Time</span>
-            <span class="value" id="unlockTime">-</span>
-        </div>
-
-        <div class="info">
-            <span class="label">Balance</span>
-            <span class="value"><span id="balance">-</span> ETH</span>
-        </div>
+    <div class="info">
+        <span>Account</span>
+        <span id="account">Not connected</span>
     </div>
 
-    <div>Token Balance: <span id="tokenBalance">0</span> MTK</div>
+    <div class="info">
+        <span>Token Balance</span>
+        <span id="tokenBalance">0</span>
+    </div>
 
-<hr>
+    <h3>Transfer Tokens</h3>
 
-<h3>Transfer Tokens</h3>
-<input type="text" id="transferAddress" placeholder="Recipient Address (0x...)">
-<input type="number" id="transferAmount" placeholder="Amount to send">
-<button id="transferBtn">Send Tokens</button>
+    <input id="toAddress" placeholder="Recipient address (0x...)">
+    <input id="amount" type="number" placeholder="Amount">
 
-<p id="statusLabel"></p>
-    <script type="module" src="ethers.js"></script>
+    <button id="transferBtn">Send Tokens</button>
 
+    <div id="status"></div>
+</div>
+
+<script type="module" src="ethers.js"></script>
 </body>
 </html>
