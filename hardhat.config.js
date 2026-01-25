@@ -3,9 +3,9 @@ import "@nomicfoundation/hardhat-toolbox";
 export default {
   solidity: {
     compilers: [
-      { version: "0.8.19" }, // для MyToken.sol
-      { version: "0.8.20" }, // для OpenZeppelin
-      { version: "0.8.24" }  // для Lock.sol
+      { version: "0.8.19" },
+      { version: "0.8.20" }, 
+      { version: "0.8.24" }  
     ]
   },
   networks: {

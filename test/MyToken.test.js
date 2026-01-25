@@ -9,7 +9,7 @@ describe("MyToken Contract", function () {
   let addr1;
   let addr2;
 
-  const initialSupply = ethers.parseUnits("1000", 18); // 1000 MTK
+  const initialSupply = ethers.parseUnits("1000", 18);
 
   beforeEach(async function () {
     Token = await ethers.getContractFactory("MyToken");
