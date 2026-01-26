@@ -11,14 +11,9 @@ const toAddressInput = document.getElementById("toAddress");
 const amountInput = document.getElementById("amount");
 
 const TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-const TOKEN_ABI = [{
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "initialSupply",
-          "type": "uint256"
-        }
-      ],
+const TOKEN_ABI = [
+    {
+      "inputs": [],
       "stateMutability": "nonpayable",
       "type": "constructor"
     },
@@ -109,6 +104,28 @@ const TOKEN_ABI = [{
       "type": "error"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
       "anonymous": false,
       "inputs": [
         {
@@ -131,6 +148,25 @@ const TOKEN_ABI = [{
         }
       ],
       "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
       "type": "event"
     },
     {
@@ -239,6 +275,24 @@ const TOKEN_ABI = [{
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "mint",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "name",
       "outputs": [
@@ -249,6 +303,26 @@ const TOKEN_ABI = [{
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -329,7 +403,21 @@ const TOKEN_ABI = [{
       ],
       "stateMutability": "nonpayable",
       "type": "function"
-    }];
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
 let provider;
 let signer;
 let token;
