@@ -1,181 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>ERC-20 & NFT dApp</title>
-    <style>
-        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #4b0082, #2b1055);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-        }
-        .card {
-            background: #1a1a2e;
-            padding: 30px;
-            border-radius: 16px;
-            width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-        h1, h3 {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            font-size: 15px;
-            font-weight: bold;
-            color: #fff;
-            background: linear-gradient(135deg,#6a5acd,#836fff);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        .info {
-            background: #22223b;
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 10px;
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 8px;
-            border: none;
-        }
-        #status {
-            margin-top: 10px;
-            text-align: center;
-            font-size: 14px;
-        }
-        .nft-item {
-            background: #33334d;
-            padding: 8px;
-            border-radius: 8px;
-            margin-top: 5px;
-            font-size: 13px;
-        }
-    </style>
-</head>
-<body>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ERC-20 & NFT dApp</title>
 
-<div class="card">
+  <style>
+    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #4b0082, #2b1055);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      padding: 30px;
+    }
+    .card {
+      background: #15152a;
+      padding: 28px;
+      border-radius: 18px;
+      width: 430px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    }
+    h1 { text-align: center; margin: 0 0 16px; }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 15px;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(135deg,#6a5acd,#836fff);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .info {
+      background: #1f1f37;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      overflow-wrap: anywhere;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+    .section-title {
+      text-align: center;
+      margin: 18px 0 8px;
+      font-weight: 700;
+    }
+    .list { margin-top: 10px; display: grid; gap: 8px; }
+    .item {
+      background: #1f1f37;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+    #status {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.95;
+      overflow-wrap: anywhere;
+    }
+    a { color: #cfcfff; }
+  </style>
+</head>
+
+<body>
+  <div class="card">
     <h1>ERC-20 & NFT dApp</h1>
 
     <button id="connectBtn">Connect MetaMask</button>
 
-    <div class="info">
-        <span>Account</span>
-        <span id="account">Not connected</span>
-    </div>
+    <div class="info"><span>Account</span><span id="account">Not connected</span></div>
 
-    <div class="info">
-        <span>Token Balance</span>
-        <span id="tokenBalance">0</span>
-    </div>
+    <div class="info"><span>Token</span><span id="tokenMeta">-</span></div>
+    <div class="info"><span>Token Balance</span><span id="tokenBalance">0</span></div>
 
-    <h3>Transfer ERC-20 Tokens</h3>
-    <input id="toAddress" placeholder="Recipient address (0x...)">
-    <input id="amount" type="number" placeholder="Amount">
+    <div class="section-title">Transfer ERC-20 Tokens</div>
+    <input id="toAddress" placeholder="Recipient address (0x...)" />
+    <input id="amount" type="number" placeholder="Amount" />
     <button id="transferBtn">Send Tokens</button>
 
-    <h3>My NFTs</h3>
-    <button id="loadNFTsBtn">Load My NFTs</button>
-    <div id="nftList"></div>
+    <div class="section-title">My NFTs</div>
+    <button id="loadNftsBtn">Load My NFTs</button>
+    <div id="nftList" class="list"></div>
 
     <div id="status"></div>
-</div>
+  </div>
 
-<script type="module">
-import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.6.0/dist/ethers.min.js";
-
-let provider;
-let signer;
-let account;
-let tokenContract;
-let nftContract;
-
-// Вставь свои ABI и адреса контрактов
-const tokenAbi = [ // MyToken ABI минимальный для Part1
-    "function balanceOf(address) view returns (uint256)",
-    "function transfer(address to, uint256 amount) returns (bool)"
-];
-const tokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // ERC-20 адрес
-
-const nftAbi = [
-    "function tokenCounter() view returns (uint256)",
-    "function ownerOf(uint256 tokenId) view returns (address)",
-    "function tokenURI(uint256 tokenId) view returns (string)"
-];
-const nftAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"; // ERC-721 адрес
-
-// Подключение MetaMask
-document.getElementById("connectBtn").onclick = async () => {
-    if (window.ethereum) {
-        provider = new ethers.BrowserProvider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        signer = await provider.getSigner();
-        account = await signer.getAddress();
-        document.getElementById("account").innerText = account;
-
-        tokenContract = new ethers.Contract(tokenAddress, tokenAbi, signer);
-        nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
-
-        updateBalance();
-        document.getElementById("status").innerText = "Connected!";
-    } else {
-        alert("MetaMask not detected!");
-    }
-};
-
-// Обновление ERC-20 баланса
-async function updateBalance() {
-    if (!tokenContract || !account) return;
-    const balance = await tokenContract.balanceOf(account);
-    document.getElementById("tokenBalance").innerText = ethers.formatUnits(balance, 18);
-}
-
-// Отправка токенов
-document.getElementById("transferBtn").onclick = async () => {
-    const to = document.getElementById("toAddress").value;
-    const amount = document.getElementById("amount").value;
-    if (!to || !amount) return alert("Enter recipient and amount");
-
-    const tx = await tokenContract.transfer(to, ethers.parseUnits(amount, 18));
-    document.getElementById("status").innerText = "Sending transaction...";
-    await tx.wait();
-    document.getElementById("status").innerText = `Sent ${amount} tokens to ${to}`;
-    updateBalance();
-};
-
-// Загрузка NFT
-document.getElementById("loadNFTsBtn").onclick = async () => {
-    if (!nftContract || !account) return;
-    const nftListDiv = document.getElementById("nftList");
-    nftListDiv.innerHTML = "";
-
-    const total = await nftContract.tokenCounter();
-    for (let i = 0; i < total; i++) {
-        const owner = await nftContract.ownerOf(i);
-        if (owner.toLowerCase() === account.toLowerCase()) {
-            const uri = await nftContract.tokenURI(i);
-            const div = document.createElement("div");
-            div.className = "nft-item";
-            div.innerText = `Token ID: ${i}, URI: ${uri}`;
-            nftListDiv.appendChild(div);
-        }
-    }
-};
-</script>
-
+  <script type="module" src="./ethers.js"></script>
 </body>
 </html>
